@@ -51,7 +51,7 @@ function App() {
           ))}
         </select>
 
-        {isLoading && <p>Carregando...</p>}
+        {isLoading && <p>Carregando, aguarde...</p>}
         {error && <p>{error}</p>}
 
         {parlamentares.length > 0 && (
