@@ -1,0 +1,68 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const API_URL = 'https://dadosabertos.camara.leg.br/api/v2/deputados';
+
+function App() {
+  const [partidos, setPartidos] = useState([]);
+  const [parlamentares, setParlamentares] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPartidos = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(API_URL);
+        setPartidos(response.data.resultados);
+      } catch (error) {
+        setError('Erro ao buscar os partidos.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPartidos();
+  }, []);
+
+  const handlePartidoChange = async (event) => {
+    const partidoId = event.target.value;
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.get(`${API_URL}?siglaPartido=${partidoId}`);
+      setParlamentares(response.data.resultados);
+    } catch (error) {
+      setError('Erro ao buscar os parlamentares.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+      <div>
+        <h1>Parlamentares</h1>
+        <select value={partidoSelecionado} onChange={handlePartidoChange}>
+          <option value="">Selecione um partido</option>
+          {partidos.map(partido => (
+            <option key={partido.siglaPartido} value={partido.siglaPartido}>
+              {partido.nome}
+            </option>
+          ))}
+        </select>
+
+        {isLoading && <p>Carregando...</p>}
+        {error && <p>{error}</p>}
+
+        {parlamentares.length > 0 && (
+          <ul>
+            {parlamentares.map(parlamentar => (
+              <li key={parlamentar.id}>
+                {parlamentar.nomeCivil}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+}
